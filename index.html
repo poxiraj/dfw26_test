@@ -194,6 +194,20 @@
       opacity: 0.92;
     }
 
+    /* Auto-advance countdown status line (shown inside item body) */
+    .auto-adv-status {
+      font-family: 'Cinzel', serif;
+      font-size: 0.63rem;
+      letter-spacing: 0.08em;
+      color: var(--gold);
+      margin-top: 0.3rem;
+      min-height: 1em;
+    }
+    .event-item.agenda-pinned .auto-adv-status {
+      color: var(--burgundy);
+      opacity: 0.8;
+    }
+
     /* sequenceId 39 (dinner): maincourse.png | meal.jpg */
     .event-item.dinner-showcase {
       position: relative;
@@ -753,8 +767,16 @@
       }
     }
 
+    /* Ambient petal fall — reuses .celebration-petal but with gentler opacity */
+    .ambient-petal {
+      opacity: 0.55;
+    }
+
     @media (prefers-reduced-motion: reduce) {
       .celebration-overlay {
+        display: none !important;
+      }
+      #ambient-overlay {
         display: none !important;
       }
     }
@@ -1021,6 +1043,43 @@
       return v !== undefined && v !== null && v !== '';
     }
 
+    /* ── Auto-advance timer ───────────────────────────────────────────────── */
+    let _autoAdvanceTimer = null;
+
+    /**
+     * Returns the current auto-advance phase based on data.autoAdvanceStartedAt:
+     *   'performing' - item is live; durationMinutes still counting down
+     *   'prep'       - duration elapsed; waiting for next item's prepTime
+     *   'advance'    - both elapsed; caller should move to the next item
+     *   'done'       - last item finished; caller should clear the highlight
+     * Returns null when auto-advance is not active.
+     */
+    function getAutoAdvanceState(data) {
+      if (!hasManualAgendaHighlight(data)) return null;
+      if (!data.autoAdvanceStartedAt) return null;
+      const items = data.items || [];
+      const key = String(data.manualCurrentSequenceId);
+      const currentIdx = items.findIndex(function (it) { return String(it.sequenceId) === key; });
+      if (currentIdx < 0) return null;
+      const currentItem = items[currentIdx];
+      const durationMs = Math.max(0, Number(currentItem.durationMinutes) || 0) * 60000;
+      const elapsed = Date.now() - data.autoAdvanceStartedAt;
+      if (elapsed < durationMs) {
+        return { phase: 'performing', currentIdx: currentIdx, remainingMs: durationMs - elapsed };
+      }
+      const nextIdx = currentIdx + 1;
+      if (nextIdx >= items.length) {
+        return { phase: 'done', currentIdx: currentIdx };
+      }
+      const nextItem = items[nextIdx];
+      const prepMs = Math.max(0, Number(nextItem.prepTime) || 0) * 60000;
+      const prepElapsed = elapsed - durationMs;
+      if (prepElapsed < prepMs) {
+        return { phase: 'prep', currentIdx: currentIdx, nextIdx: nextIdx, remainingMs: prepMs - prepElapsed };
+      }
+      return { phase: 'advance', currentIdx: currentIdx, nextIdx: nextIdx };
+    }
+
     /**
      * @returns {{ ordered: typeof items, currentIndex: number, agendaPinned: boolean }}
      */
@@ -1037,7 +1096,9 @@
         });
         if (idx >= 0) {
           currentIndex = idx;
-          agendaPinned = true;
+          // Show "In Progress" badge only while actively performing (not during prep wait)
+          const advState = getAutoAdvanceState(data);
+          agendaPinned = !advState || advState.phase === 'performing';
         }
       }
 
@@ -1057,6 +1118,225 @@
         }
       }
     }
+
+    /* ── Auto-advance scheduling ──────────────────────────────────────────── */
+
+    /** Move manualCurrentSequenceId to items[nextIdx] and restart the timer. */
+    function _doAdvanceToNext(nextIdx) {
+      const freshData = getData();
+      if (!freshData) return;
+      const items = freshData.items || [];
+      const nextItem = items[nextIdx];
+      if (!nextItem) { _clearAutoAdvance(); return; }
+      const n = Number(nextItem.sequenceId);
+      freshData.manualCurrentSequenceId = Number.isNaN(n) ? nextItem.sequenceId : n;
+      freshData.autoAdvanceStartedAt = Date.now();
+      saveData(freshData);
+      renderProgramme(freshData, true);
+      if (window.updateAmbientAnimation) window.updateAmbientAnimation(freshData);
+      scheduleAutoAdvance(freshData);
+    }
+
+    /** All items done — remove manual highlight and auto-advance data. */
+    function _clearAutoAdvance() {
+      const freshData = getData();
+      if (!freshData) return;
+      delete freshData.manualCurrentSequenceId;
+      delete freshData.autoAdvanceStartedAt;
+      saveData(freshData);
+      renderProgramme(freshData, false);
+      if (window.updateAmbientAnimation) window.updateAmbientAnimation(freshData);
+    }
+
+    /**
+     * Schedule the next auto-advance timeout based on the current state.
+     * Cancels any previously pending timer first.
+     */
+    function scheduleAutoAdvance(data) {
+      if (_autoAdvanceTimer !== null) {
+        clearTimeout(_autoAdvanceTimer);
+        _autoAdvanceTimer = null;
+      }
+      const state = getAutoAdvanceState(data);
+      if (!state) return;
+
+      if (state.phase === 'advance') {
+        _doAdvanceToNext(state.nextIdx);
+        return;
+      }
+      if (state.phase === 'done') {
+        _clearAutoAdvance();
+        return;
+      }
+      if (state.phase === 'performing') {
+        // When duration ends, re-evaluate (will be 'prep' or 'advance' or 'done')
+        _autoAdvanceTimer = setTimeout(function () {
+          _autoAdvanceTimer = null;
+          const d = getData();
+          if (!d) return;
+          refresh();            // drop "In Progress" badge immediately
+          scheduleAutoAdvance(d);
+        }, state.remainingMs);
+      } else if (state.phase === 'prep') {
+        // Remove "In Progress" now; advance when prep time expires
+        refresh();
+        _autoAdvanceTimer = setTimeout(function () {
+          _autoAdvanceTimer = null;
+          _doAdvanceToNext(state.nextIdx);
+        }, state.remainingMs);
+      }
+    }
+
+    /** Update the per-item countdown text every second (called by 1-second interval). */
+    function updateAutoAdvStatus() {
+      const data = getData();
+      const state = getAutoAdvanceState(data);
+      const allStatus = document.querySelectorAll('.auto-adv-status');
+      allStatus.forEach(function (el) { el.textContent = ''; });
+      if (!state) return;
+      const items = data.items || [];
+
+      function fmtMs(ms) {
+        const totalSecs = Math.max(0, Math.round(ms / 1000));
+        const m = Math.floor(totalSecs / 60);
+        const s = totalSecs % 60;
+        return m + ':' + String(s).padStart(2, '0');
+      }
+
+      if (state.phase === 'performing') {
+        const item = items[state.currentIdx];
+        if (!item) return;
+        const sid = item.sequenceId != null ? String(item.sequenceId) : '';
+        const el = document.querySelector('.auto-adv-status[data-adv-id="' + sid + '"]');
+        if (el) el.textContent = fmtMs(state.remainingMs) + ' remaining';
+      } else if (state.phase === 'prep') {
+        const nextItem = items[state.nextIdx];
+        if (!nextItem) return;
+        const sid = String(nextItem.sequenceId);
+        const el = document.querySelector('.auto-adv-status[data-adv-id="' + sid + '"]');
+        if (el) el.textContent = 'Prep: ' + fmtMs(state.remainingMs);
+      }
+    }
+
+    /* ── Ambient petal / spray animation ─────────────────────────────────── */
+    (function setupAmbientAnimation() {
+      const _holiAmb = [
+        '#FF1744','#F50057','#E91E63','#FF9100','#FFEA00',
+        '#76FF03','#00E676','#00B0FF','#00E5FF','#651FFF',
+        '#D500F9','#E040FB','#FF4081','#FFFF00'
+      ];
+      const _petalAmb = [
+        ['#ffcdd2','#e91e63','#fff59d'],
+        ['#f8bbd9','#c2185b','#ffe082'],
+        ['#ffecb3','#ff6f00','#fff9c4'],
+        ['#c8e6c9','#2e7d32','#e8f5e9'],
+        ['#b3e5fc','#0277bd','#e1f5fe'],
+        ['#e1bee7','#6a1b9a','#f3e5f5'],
+        ['#ffccbc','#bf360c','#fff3e0'],
+        ['#f8bbd9','#ad1457','#fce4ec']
+      ];
+      let _petalIdx = 0, _holiIdx = 0;
+      let _overlay = null;
+      let _timer = null;
+      let _mode = 'off';
+
+      function _ensureOverlay() {
+        if (!_overlay) {
+          _overlay = document.createElement('div');
+          _overlay.id = 'ambient-overlay';
+          _overlay.setAttribute('aria-hidden', 'true');
+          _overlay.style.cssText = 'position:fixed;inset:0;z-index:9998;pointer-events:none;overflow:hidden;';
+          document.body.appendChild(_overlay);
+        }
+        return _overlay;
+      }
+
+      function _spawnPetal(small) {
+        const ov = _ensureOverlay();
+        const [c1, c2, c3] = _petalAmb[_petalIdx++ % _petalAmb.length];
+        const p = document.createElement('div');
+        p.className = 'celebration-petal ambient-petal';
+        p.style.setProperty('--pc1', c1);
+        p.style.setProperty('--pc2', c2);
+        p.style.setProperty('--pc3', c3);
+        p.style.left = Math.random() * 100 + '%';
+        const w = small ? 5 + Math.random() * 7 : 7 + Math.random() * 11;
+        p.style.width = w + 'px';
+        p.style.height = (w * 1.4) + 'px';
+        p.style.setProperty('--drift', (Math.random() * 120 - 60) + 'px');
+        p.style.setProperty('--rot', (360 + Math.random() * 720) + 'deg');
+        const dur = 5.5 + Math.random() * 4.5;
+        p.style.animationDuration = dur + 's';
+        p.style.animationDelay = '0s';
+        ov.appendChild(p);
+        setTimeout(function () { if (p.parentNode) p.remove(); }, (dur + 0.3) * 1000);
+      }
+
+      function _spawnPowder() {
+        const ov = _ensureOverlay();
+        const i = _holiIdx++;
+        const d = document.createElement('div');
+        d.className = 'celebration-powder';
+        d.style.setProperty('--px', Math.random() * 100 + '%');
+        d.style.setProperty('--py', Math.random() * 70 + '%');
+        d.style.setProperty('--pow1', _holiAmb[i % _holiAmb.length]);
+        d.style.setProperty('--pow2', _holiAmb[(i + 4) % _holiAmb.length]);
+        d.style.setProperty('--pow3', _holiAmb[(i + 8) % _holiAmb.length]);
+        d.style.setProperty('--pdelay', '0s');
+        ov.appendChild(d);
+        setTimeout(function () { if (d.parentNode) d.remove(); }, 1400);
+      }
+
+      function _setMode(mode) {
+        if (_mode === mode) return;
+        _mode = mode;
+        if (_timer !== null) { clearInterval(_timer); _timer = null; }
+        if (mode === 'off') return;
+        if (mode === 'mild') {
+          // ~1-2 small petals every 900ms — very gentle
+          _timer = setInterval(function () {
+            _spawnPetal(true);
+            if (Math.random() < 0.35) _spawnPetal(true);
+          }, 900);
+        } else if (mode === 'moderate') {
+          // ~3 petals + occasional powder every 380ms — noticeable but not hectic
+          _timer = setInterval(function () {
+            _spawnPetal(false);
+            _spawnPetal(false);
+            if (Math.random() < 0.55) _spawnPetal(false);
+            if (Math.random() < 0.4) _spawnPowder();
+          }, 380);
+        }
+      }
+
+      /**
+       * Determine the desired animation mode from the current In-Progress sequenceId:
+       *   - No item / seq 0   → mild (pre-show atmosphere)
+       *   - seq 1             → off  (Welcome Address: quiet)
+       *   - seq 2–16          → off
+       *   - seq 17            → mild (resumes)
+       *   - seq 18–38         → off
+       *   - seq 39            → moderate (dinner celebration)
+       *   - seq 40+           → off
+       */
+      window.updateAmbientAnimation = function (data) {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { _setMode('off'); return; }
+        const sid = data ? data.manualCurrentSequenceId : null;
+        let mode = 'mild'; // default: mild when nothing is In Progress
+        if (sid != null && sid !== '') {
+          const n = Number(sid);
+          if (n === 0)                         mode = 'mild';
+          else if (n === 1)                    mode = 'off';
+          else if (n >= 2  && n <= 16)         mode = 'off';
+          else if (n === 17)                   mode = 'mild';
+          else if (n >= 18 && n <= 38)         mode = 'off';
+          else if (n === 39)                   mode = 'moderate';
+          else                                 mode = 'off';
+        }
+        _setMode(mode);
+      };
+    })();
+    /* ─────────────────────────────────────────────────────────────────────── */
 
     function getData() {
       try {
@@ -1165,6 +1445,7 @@
                 ${prep}
                 ${gap}
                 ${art}
+                <div class="auto-adv-status" data-adv-id="${escapeHtml(seqIdRaw)}"></div>
               </div>
               ${sideThumb}
               <div class="time-block">
@@ -1227,6 +1508,8 @@
               const k = String(prior.manualCurrentSequenceId);
               if (parsed.items.some(function (it) { return String(it.sequenceId) === k; })) {
                 parsed.manualCurrentSequenceId = prior.manualCurrentSequenceId;
+                // Preserve timer start so auto-advance continues across page reloads
+                if (prior.autoAdvanceStartedAt) parsed.autoAdvanceStartedAt = prior.autoAdvanceStartedAt;
               }
             }
             saveData(parsed);
@@ -1238,9 +1521,23 @@
         data = getData();
       }
       renderProgramme(data, true);
+      scheduleAutoAdvance(data);
       setInterval(refresh, 15000);
+      setInterval(updateAutoAdvStatus, 1000);
+      // Start ambient animation after the initial burst fades (~16 s), then keep in sync
+      setTimeout(function () {
+        if (window.updateAmbientAnimation) {
+          window.updateAmbientAnimation(getData());
+          setInterval(function () {
+            if (window.updateAmbientAnimation) window.updateAmbientAnimation(getData());
+          }, 3000);
+        }
+      }, 16000);
       window.addEventListener('storage', function () {
-        renderProgramme(getData(), true);
+        const newData = getData();
+        renderProgramme(newData, true);
+        scheduleAutoAdvance(newData);
+        if (window.updateAmbientAnimation) window.updateAmbientAnimation(newData);
       });
     }
 

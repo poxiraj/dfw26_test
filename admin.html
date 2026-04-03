@@ -402,6 +402,7 @@
       if (sequenceId === undefined || sequenceId === null || String(sequenceId).trim() === '') return;
       const n = Number(sequenceId);
       data.manualCurrentSequenceId = Number.isNaN(n) ? sequenceId : n;
+      data.autoAdvanceStartedAt = Date.now(); // start the auto-advance timer from now
       saveToStorage(data);
       renderAdminList(data);
     }
@@ -410,6 +411,7 @@
       const data = getData();
       if (!data) return;
       delete data.manualCurrentSequenceId;
+      delete data.autoAdvanceStartedAt;
       saveToStorage(data);
       renderAdminList(data);
     }
