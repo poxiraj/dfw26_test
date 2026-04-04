@@ -572,12 +572,14 @@
       btn.addEventListener('click', function () {
         const next = isMusicPlaying() ? 'stopped' : 'playing';
         localStorage.setItem(MUSIC_KEY, next);      // same-device fallback
-        // Broadcast to all devices via server SSE
+        // Broadcast to all devices via server SSE (local dev)
         fetch('/control', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ music: next }),
         }).catch(function () {});
+        // Broadcast via Firebase (GitHub Pages / cross-device)
+        if (window.fbControlUpdate) window.fbControlUpdate({ music: next });
         updateMusicBtn();
       });
 
@@ -611,12 +613,14 @@
       btn.addEventListener('click', function () {
         const next = isBannerShowing() ? 'hidden' : 'showing';
         localStorage.setItem(MANUAL_KEY, next);     // same-device fallback
-        // Broadcast to all devices via server SSE
+        // Broadcast to all devices via server SSE (local dev)
         fetch('/control', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ banner: next }),
         }).catch(function () {});
+        // Broadcast via Firebase (GitHub Pages / cross-device)
+        if (window.fbControlUpdate) window.fbControlUpdate({ banner: next });
         updateBannerBtn();
       });
 
@@ -648,13 +652,15 @@
       data.autoAdvanceStartedAt = Date.now(); // start the auto-advance timer from now
       saveToStorage(data);
       renderAdminList(data);
-      // Broadcast focus change via SSE so display pages on other devices override
+      // Broadcast focus change so display pages on other devices override
       // whatever was previously "In Progress" and start fresh from this item.
+      var focusPayload = { focus: { seqId: data.manualCurrentSequenceId, startedAt: data.autoAdvanceStartedAt } };
       fetch('/control', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ focus: { seqId: data.manualCurrentSequenceId, startedAt: data.autoAdvanceStartedAt } }),
+        body: JSON.stringify(focusPayload),
       }).catch(function () {});
+      if (window.fbControlUpdate) window.fbControlUpdate(focusPayload);
     }
 
     function clearManualAgendaCurrent() {
@@ -670,6 +676,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ focus: null }),
       }).catch(function () {});
+      if (window.fbControlUpdate) window.fbControlUpdate({ focus: null });
     }
 
     function escapeHtml(text) {
@@ -915,6 +922,53 @@
       } catch (e) { /* file:// or missing */ }
       updateClearManualBtn();
     })();
+  </script>
+
+  <!-- Firebase Realtime Database — cross-device sync (works on GitHub Pages) -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script>
+  (function initFirebaseAdmin() {
+    if (typeof FIREBASE_CONFIG === 'undefined' || !FIREBASE_CONFIG ||
+        !FIREBASE_CONFIG.databaseURL || FIREBASE_CONFIG.apiKey === 'YOUR_API_KEY') return;
+    try {
+      firebase.initializeApp(FIREBASE_CONFIG);
+      var db = firebase.database();
+      window.fbControlUpdate = function (obj) {
+        try { db.ref('control').update(obj); } catch (_) {}
+      };
+      // Keep admin buttons in sync when another device changes state
+      db.ref('control').on('value', function (snap) {
+        var s = snap.val();
+        if (!s) return;
+        if (s.music !== undefined) {
+          try { localStorage.setItem('dholMusicState', s.music); } catch (_) {}
+          var mbtn = document.getElementById('btn-music-toggle');
+          var mlbl = document.getElementById('btn-music-label');
+          if (mbtn && mlbl) {
+            var playing = s.music === 'playing';
+            mbtn.classList.toggle('is-on', playing);
+            mlbl.textContent = playing ? '\u23f9 Stop' : '\u25b6 Start';
+            mbtn.setAttribute('aria-pressed', playing ? 'true' : 'false');
+          }
+        }
+        if (s.banner !== undefined) {
+          try { localStorage.setItem('manualBannerState', s.banner); } catch (_) {}
+          var bbtn = document.getElementById('btn-banner-toggle');
+          var blbl = document.getElementById('btn-banner-label');
+          if (bbtn && blbl) {
+            var showing = s.banner === 'showing';
+            bbtn.classList.toggle('is-on', showing);
+            blbl.textContent = showing ? '\u2715 Hide' : 'Show';
+            bbtn.setAttribute('aria-pressed', showing ? 'true' : 'false');
+          }
+        }
+      });
+    } catch (e) {
+      // Firebase unavailable — SSE + localStorage handle local dev
+    }
+  })();
   </script>
 </body>
 </html>

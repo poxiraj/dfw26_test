@@ -1658,7 +1658,7 @@
         if (_isManual) {
           _isManual = false;
           try { localStorage.setItem(MANUAL_KEY, 'hidden'); } catch (e) {}
-          // Notify the server so the admin button resets on any device
+          // Notify via SSE (local dev) and Firebase (GitHub Pages / cross-device)
           try {
             fetch('/control', {
               method: 'POST',
@@ -1666,6 +1666,7 @@
               body: JSON.stringify({ banner: 'hidden' }),
             }).catch(function () {});
           } catch (_) {}
+          if (window.fbControlUpdate) window.fbControlUpdate({ banner: 'hidden' });
         }
       };
 
@@ -1971,6 +1972,67 @@
     }
 
     init();
+  </script>
+
+  <!-- Firebase Realtime Database — cross-device sync (works on GitHub Pages) -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script>
+  (function initFirebaseDisplay() {
+    if (typeof FIREBASE_CONFIG === 'undefined' || !FIREBASE_CONFIG ||
+        !FIREBASE_CONFIG.databaseURL || FIREBASE_CONFIG.apiKey === 'YOUR_API_KEY') return;
+    try {
+      firebase.initializeApp(FIREBASE_CONFIG);
+      var db = firebase.database();
+
+      // Expose so dismissAlertBanner and other code can write back to Firebase
+      window.fbControlUpdate = function (obj) {
+        try { db.ref('control').update(obj); } catch (_) {}
+      };
+
+      // Track last-seen focus to avoid re-applying identical state
+      var _lastFocusKey = '';
+
+      // Listen for all control state changes from any device
+      db.ref('control').on('value', function (snap) {
+        var state = snap.val();
+        if (!state) return;
+
+        // ── Focus override (admin set a different "In Progress" item) ──────
+        if ('focus' in state) {
+          if (state.focus !== null && state.focus !== undefined) {
+            var key = state.focus.seqId + '_' + state.focus.startedAt;
+            if (key !== _lastFocusKey) {
+              _lastFocusKey = key;
+              if (window.applyFocusOverride) {
+                window.applyFocusOverride(state.focus.seqId, state.focus.startedAt);
+              }
+            }
+          } else {
+            if (_lastFocusKey !== 'cleared') {
+              _lastFocusKey = 'cleared';
+              if (window.clearFocusOverride) window.clearFocusOverride();
+            }
+          }
+        }
+
+        // ── Music ──────────────────────────────────────────────────────────
+        if (state.music !== undefined) {
+          try { localStorage.setItem('dholMusicState', state.music); } catch (_) {}
+          if (window.syncDholAudio) window.syncDholAudio();
+        }
+
+        // ── Banner ─────────────────────────────────────────────────────────
+        if (state.banner !== undefined) {
+          try { localStorage.setItem('manualBannerState', state.banner); } catch (_) {}
+          if (window.syncManualBanner) window.syncManualBanner();
+        }
+      });
+    } catch (e) {
+      // Firebase unavailable — SSE + localStorage handle it
+    }
+  })();
   </script>
 </body>
 </html>
