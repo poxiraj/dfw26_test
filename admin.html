@@ -571,15 +571,22 @@
 
       btn.addEventListener('click', function () {
         const next = isMusicPlaying() ? 'stopped' : 'playing';
-        localStorage.setItem(MUSIC_KEY, next);
+        localStorage.setItem(MUSIC_KEY, next);      // same-device fallback
+        // Broadcast to all devices via server SSE
+        fetch('/control', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ music: next }),
+        }).catch(function () {});
         updateMusicBtn();
       });
 
-      // Keep button in sync if another admin tab changes the state
+      // Keep button in sync if another admin tab (same device) changes the state
       window.addEventListener('storage', function (e) {
         if (e.key === MUSIC_KEY) updateMusicBtn();
       });
 
+      // Also keep in sync if a cross-device SSE update bounces back (optional)
       updateMusicBtn(); // reflect current state on page load
     })();
 
@@ -602,11 +609,18 @@
       }
 
       btn.addEventListener('click', function () {
-        localStorage.setItem(MANUAL_KEY, isBannerShowing() ? 'hidden' : 'showing');
+        const next = isBannerShowing() ? 'hidden' : 'showing';
+        localStorage.setItem(MANUAL_KEY, next);     // same-device fallback
+        // Broadcast to all devices via server SSE
+        fetch('/control', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ banner: next }),
+        }).catch(function () {});
         updateBannerBtn();
       });
 
-      // Stay in sync if the banner is dismissed from the main view
+      // Stay in sync if the banner is dismissed from the main view (same device)
       window.addEventListener('storage', function (e) {
         if (e.key === MANUAL_KEY) updateBannerBtn();
       });
@@ -634,6 +648,13 @@
       data.autoAdvanceStartedAt = Date.now(); // start the auto-advance timer from now
       saveToStorage(data);
       renderAdminList(data);
+      // Broadcast focus change via SSE so display pages on other devices override
+      // whatever was previously "In Progress" and start fresh from this item.
+      fetch('/control', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ focus: { seqId: data.manualCurrentSequenceId, startedAt: data.autoAdvanceStartedAt } }),
+      }).catch(function () {});
     }
 
     function clearManualAgendaCurrent() {
@@ -643,6 +664,12 @@
       delete data.autoAdvanceStartedAt;
       saveToStorage(data);
       renderAdminList(data);
+      // Broadcast clear so display pages on other devices stop auto-advance.
+      fetch('/control', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ focus: null }),
+      }).catch(function () {});
     }
 
     function escapeHtml(text) {
