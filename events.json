@@ -2,8 +2,8 @@
   "items": [
     {
       "sequenceId": 0,
-      "description1": "জলপান , আলোকচিত্ৰ ",
-      "description2": "Snacks, Photo ",
+      "description1": "জলপান , আলোকচিত্ৰ",
+      "description2": "Snacks, Photo",
       "durationMinutes": 60,
       "expectedStartTime": "15:00",
       "prepTime": null,
@@ -12,12 +12,12 @@
     },
     {
       "sequenceId": 1,
-      "description1": "উদ্বোধনী ",
+      "description1": "উদ্বোধনী",
       "description2": "Welcome Address",
       "durationMinutes": 3,
       "expectedStartTime": "16:00",
       "prepTime": 0,
-      "Presenter(s)": "Jonali",
+      "Presenter(s)": null,
       "coordinator": null
     },
     {
@@ -27,7 +27,7 @@
       "durationMinutes": 5,
       "expectedStartTime": "16:05",
       "prepTime": 2,
-      "Presenter(s)": "Anita,Tisha,Papari, Jyotishman, Diya, Pallavi K., Karabi(Amar), Rajeev, Abhijit, Manoj",
+      "Presenter(s)": null,
       "coordinator": null
     },
     {
@@ -37,8 +37,8 @@
       "durationMinutes": 5,
       "expectedStartTime": "16:12",
       "prepTime": 2,
-      "Presenter(s)": "Nirvan,Navya,Abishta,Aadvik,Anisha,Sayesha, Aarna, Bishakha, Aashi, Jinisha, Ziyan, Alaina,Drishana,Gionna,Ishika",
-      "coordinator": "Manoj, Tuki"
+      "Presenter(s)": null,
+      "coordinator": null
     },
     {
       "sequenceId": 4,
@@ -47,8 +47,8 @@
       "durationMinutes": 5.5,
       "expectedStartTime": "16:19",
       "prepTime": 2,
-      "Presenter(s)": "Dashavatar Group",
-      "coordinator": "Nerina"
+      "Presenter(s)": null,
+      "coordinator": null
     },
     {
       "sequenceId": 5,
@@ -57,8 +57,8 @@
       "durationMinutes": 5,
       "expectedStartTime": "16:26:30",
       "prepTime": 2,
-      "Presenter(s)": "Anaisha & Drivika ",
-      "coordinator": "Sue, Soma"
+      "Presenter(s)": null,
+      "coordinator": null
     },
     {
       "sequenceId": 6,
@@ -67,8 +67,8 @@
       "durationMinutes": 5,
       "expectedStartTime": "16:33:30",
       "prepTime": 2,
-      "Presenter(s)": "Aarna, Anisha, Jinisha , Aashi",
-      "coordinator": "Pranami, Ritu"
+      "Presenter(s)": null,
+      "coordinator": null
     },
     {
       "sequenceId": 7,
@@ -77,38 +77,38 @@
       "durationMinutes": 5,
       "expectedStartTime": "16:40:30",
       "prepTime": 2,
-      "Presenter(s)": "Nirvan, Aadvik, Rishik, Ishika, Myra, Sayesha, Evaan, Sanya ",
+      "Presenter(s)": null,
       "coordinator": null
     },
     {
       "sequenceId": 8,
-      "description1": "পোছাক প্ৰদৰ্শনী",
-      "description2": "Fashion Show",
-      "durationMinutes": 10,
-      "expectedStartTime": "16:50:30",
-      "prepTime": 5,
-      "Presenter(s)": "The Ladies of Dallas",
-      "coordinator": "Karabi Sharma"
-    },
-    {
-      "sequenceId": 9,
       "description1": "জীয়ৰীসকলৰ বিহু",
       "description2": "Daughters Bihu Dance",
       "durationMinutes": 5,
-      "expectedStartTime": "17:02:30",
+      "expectedStartTime": "16:47:30",
       "prepTime": 2,
-      "Presenter(s)": "Tuhina, Tulika",
-      "coordinator": "Kalpita"
+      "Presenter(s)": null,
+      "coordinator": null
+    },
+    {
+      "sequenceId": 9,
+      "description1": "পোছাক প্ৰদৰ্শনী",
+      "description2": "Fashion Show",
+      "durationMinutes": 10,
+      "expectedStartTime": "16:57:30",
+      "prepTime": 5,
+      "Presenter(s)": null,
+      "coordinator": null
     },
     {
       "sequenceId": 10,
       "description1": "সাত ভগিনীৰ নৃত্য",
-      "description2": "Seven sisters dance",
+      "description2": "Assamese contemporary dance",
       "durationMinutes": 5,
       "expectedStartTime": "17:09:30",
       "prepTime": 2,
-      "Presenter(s)": "Seven Sisters ",
-      "coordinator": "Kalpita, Sanjukta"
+      "Presenter(s)": null,
+      "coordinator": null
     },
     {
       "sequenceId": 11,
@@ -117,7 +117,7 @@
       "durationMinutes": 5,
       "expectedStartTime": "17:15:30",
       "prepTime": 1,
-      "Presenter(s)": "Mishi",
+      "Presenter(s)": null,
       "coordinator": null
     },
     {
@@ -127,17 +127,17 @@
       "durationMinutes": 5,
       "expectedStartTime": "17:21:30",
       "prepTime": 1,
-      "Presenter(s)": "Sayesha,Ishika, Sanya",
-      "coordinator": " Pahi, Navin"
+      "Presenter(s)": null,
+      "coordinator": null
     },
     {
       "sequenceId": 13,
-      "description1": "একক গীত –",
+      "description1": "একক গীত",
       "description2": "Solo song Jinisha",
       "durationMinutes": 5,
       "expectedStartTime": "17:27:30",
       "prepTime": 1,
-      "Presenter(s)": "Jinisha",
+      "Presenter(s)": null,
       "coordinator": null
     },
     {
@@ -147,8 +147,8 @@
       "durationMinutes": 3,
       "expectedStartTime": "17:34:30",
       "prepTime": 2,
-      "Presenter(s)": "Arohi",
-      "coordinator": "Barnali"
+      "Presenter(s)": null,
+      "coordinator": null
     },
     {
       "sequenceId": 15,
@@ -157,8 +157,8 @@
       "durationMinutes": 5,
       "expectedStartTime": "17:39:30",
       "prepTime": 2,
-      "Presenter(s)": "Drishana, Kashvi, Parinita, Soma",
-      "coordinator": "Parinita, Soma"
+      "Presenter(s)": null,
+      "coordinator": null
     },
     {
       "sequenceId": 16,
@@ -167,13 +167,13 @@
       "durationMinutes": 7,
       "expectedStartTime": "17:47:30",
       "prepTime": 3,
-      "Presenter(s)": "Jonali, Ruby, Priyanka, Sue, Ritu, Dona, Kalpita, Karabi(s), Janu",
+      "Presenter(s)": null,
       "coordinator": null
     },
     {
       "sequenceId": 17,
       "description1": "চাহ-পানীৰ অৱকাশ",
-      "description2": "BREAK (Water/Tea) ",
+      "description2": "BREAK (Water/Tea)",
       "durationMinutes": 30,
       "expectedStartTime": "17:54:30",
       "prepTime": null,
@@ -187,7 +187,7 @@
       "durationMinutes": 5,
       "expectedStartTime": "18:26:30",
       "prepTime": 2,
-      "Presenter(s)": "Anisha",
+      "Presenter(s)": null,
       "coordinator": null
     },
     {
@@ -197,8 +197,8 @@
       "durationMinutes": 5,
       "expectedStartTime": "18:31:30",
       "prepTime": null,
-      "Presenter(s)": "Dona, Ashi",
-      "coordinator": "Dona"
+      "Presenter(s)": null,
+      "coordinator": null
     },
     {
       "sequenceId": 20,
@@ -207,7 +207,7 @@
       "durationMinutes": 5,
       "expectedStartTime": "18:38:30",
       "prepTime": 2,
-      "Presenter(s)": "Saibal& Tuki",
+      "Presenter(s)": null,
       "coordinator": null
     },
     {
@@ -217,27 +217,27 @@
       "durationMinutes": 5,
       "expectedStartTime": "18:45:30",
       "prepTime": 2,
-      "Presenter(s)": "Aarna",
+      "Presenter(s)": null,
       "coordinator": null
     },
     {
       "sequenceId": 22,
       "description1": "অসমীয়া আধুনিক নৃত্য",
-      "description2": "Assamese Modern dance ",
+      "description2": "Assamese Modern dance",
       "durationMinutes": 5,
       "expectedStartTime": "18:53:30",
       "prepTime": 3,
-      "Presenter(s)": "Navya, Lisa, Bishakha, Alaina ,Gionna, Mishi\n",
-      "coordinator": "Mausumi, Anita and Tisha"
+      "Presenter(s)": null,
+      "coordinator": null
     },
     {
       "sequenceId": 23,
       "description1": "একক গীত – অগস্ত্য",
-      "description2": "Solo song ",
+      "description2": "Solo song",
       "durationMinutes": 5,
       "expectedStartTime": "19:00:30",
       "prepTime": 2,
-      "Presenter(s)": "Agastya",
+      "Presenter(s)": null,
       "coordinator": null
     },
     {
@@ -247,17 +247,17 @@
       "durationMinutes": 5,
       "expectedStartTime": "19:07:30",
       "prepTime": 2,
-      "Presenter(s)": "Pranami, Jyotishikha, Nitu K",
+      "Presenter(s)": null,
       "coordinator": null
     },
     {
       "sequenceId": 25,
-      "description1": "একক গীত ",
+      "description1": "একক গীত",
       "description2": "Solo Song",
       "durationMinutes": 5,
       "expectedStartTime": "19:14:30",
       "prepTime": 2,
-      "Presenter(s)": "Pankaj",
+      "Presenter(s)": null,
       "coordinator": null
     },
     {
@@ -267,8 +267,8 @@
       "durationMinutes": 5,
       "expectedStartTime": "19:22:30",
       "prepTime": 3,
-      "Presenter(s)": "Pallavi K., Anita, Erica, Papari,  Jonali, Loona, Nita",
-      "coordinator": "Jonali"
+      "Presenter(s)": null,
+      "coordinator": null
     },
     {
       "sequenceId": 27,
@@ -277,7 +277,7 @@
       "durationMinutes": 5,
       "expectedStartTime": "19:29:30",
       "prepTime": 2,
-      "Presenter(s)": "Karabi Sarmah",
+      "Presenter(s)": null,
       "coordinator": null
     },
     {
@@ -287,8 +287,8 @@
       "durationMinutes": 5,
       "expectedStartTime": "19:37:30",
       "prepTime": 3,
-      "Presenter(s)": "Mousumi, Nitu K., Arohi, Simanta P.",
-      "coordinator": "Simanta P."
+      "Presenter(s)": null,
+      "coordinator": null
     },
     {
       "sequenceId": 29,
@@ -297,57 +297,57 @@
       "durationMinutes": 5,
       "expectedStartTime": "19:44:30",
       "prepTime": 2,
-      "Presenter(s)": "Rahul, Anchita",
+      "Presenter(s)": null,
       "coordinator": null
     },
     {
       "sequenceId": 30,
-      "description1": "ৰিশিতাৰ নৃত্য",
-      "description2": "Rishita dance",
-      "durationMinutes": 5,
+      "description1": "একক গীত – দীয়া",
+      "description2": "Solo song Diya",
+      "durationMinutes": 4,
       "expectedStartTime": "19:51:30",
       "prepTime": 2,
-      "Presenter(s)": "Rishita",
+      "Presenter(s)": null,
       "coordinator": null
     },
     {
       "sequenceId": 31,
-      "description1": "সংগীতানুষ্ঠান",
-      "description2": "XYZ Musical",
+      "description1": "একক গীত – নিতু প্ৰধানী",
+      "description2": "Solo song",
       "durationMinutes": 5,
-      "expectedStartTime": "20:00:30",
-      "prepTime": 4,
-      "Presenter(s)": "Loy, Mrinmoy, Paahi, Rishab",
-      "coordinator": "Mrinmoy"
+      "expectedStartTime": "19:57:30",
+      "prepTime": 2,
+      "Presenter(s)": null,
+      "coordinator": null
     },
     {
       "sequenceId": 32,
-      "description1": "একক গীত – দীয়া",
-      "description2": "Solo song Diya",
-      "durationMinutes": 4,
-      "expectedStartTime": "20:07:30",
-      "prepTime": 2,
-      "Presenter(s)": "Diya",
+      "description1": "সংগীতানুষ্ঠান",
+      "description2": "XYZ Musical",
+      "durationMinutes": 5,
+      "expectedStartTime": "20:06:30",
+      "prepTime": 4,
+      "Presenter(s)": null,
       "coordinator": null
     },
     {
       "sequenceId": 33,
-      "description1": "সংগীতানুষ্ঠান",
-      "description2": "ABC musical",
+      "description1": "ৰিশিতাৰ নৃত্য",
+      "description2": "Rishita dance",
       "durationMinutes": 5,
-      "expectedStartTime": "20:14:30",
-      "prepTime": 3,
-      "Presenter(s)": "Rajeev",
+      "expectedStartTime": "20:13:30",
+      "prepTime": 2,
+      "Presenter(s)": null,
       "coordinator": null
     },
     {
       "sequenceId": 34,
-      "description1": "একক গীত – নিতু প্ৰধানী",
-      "description2": "Solo song ",
+      "description1": "সংগীতানুষ্ঠান",
+      "description2": "ABC musical",
       "durationMinutes": 5,
       "expectedStartTime": "20:21:30",
-      "prepTime": 2,
-      "Presenter(s)": "Nitu Pradhani",
+      "prepTime": 3,
+      "Presenter(s)": null,
       "coordinator": null
     },
     {
@@ -357,8 +357,8 @@
       "durationMinutes": 10,
       "expectedStartTime": "20:30:30",
       "prepTime": 4,
-      "Presenter(s)": "Anita, Jyotishman, Mausumi, Tisha, Mrinmoy, Pallavi K. ",
-      "coordinator": "Jyotishman "
+      "Presenter(s)": null,
+      "coordinator": null
     },
     {
       "sequenceId": 36,
@@ -367,7 +367,7 @@
       "durationMinutes": 5,
       "expectedStartTime": "20:42:30",
       "prepTime": 2,
-      "Presenter(s)": "Anjana Bora",
+      "Presenter(s)": null,
       "coordinator": null
     },
     {
@@ -377,8 +377,8 @@
       "durationMinutes": 10,
       "expectedStartTime": "20:51:30",
       "prepTime": 4,
-      "Presenter(s)": "Rongali Rockers",
-      "coordinator": "Dhurandhar"
+      "Presenter(s)": null,
+      "coordinator": null
     },
     {
       "sequenceId": 38,
@@ -388,7 +388,7 @@
       "expectedStartTime": "21:05:30",
       "prepTime": 4,
       "Presenter(s)": null,
-      "coordinator": "Mrinmoy"
+      "coordinator": null
     },
     {
       "sequenceId": 39,
@@ -403,7 +403,7 @@
     {
       "sequenceId": 40,
       "description1": "মুকলি বিহু",
-      "description2": "Mukoli Bihu ",
+      "description2": "Mukoli Bihu",
       "durationMinutes": null,
       "expectedStartTime": "22:30",
       "prepTime": null,
@@ -412,15 +412,25 @@
     },
     {
       "sequenceId": 41,
-      "description1": "অনুষ্ঠান সামৰণি ",
+      "description1": "অনুষ্ঠান সামৰণি",
       "description2": "Closing",
       "durationMinutes": null,
       "expectedStartTime": "23:15",
       "prepTime": null,
       "Presenter(s)": null,
       "coordinator": null
+    },
+    {
+      "sequenceId": null,
+      "description1": null,
+      "description2": "Total time in muntes",
+      "durationMinutes": null,
+      "expectedStartTime": null,
+      "prepTime": null,
+      "Presenter(s)": null,
+      "coordinator": null
     }
   ],
-  "eventName1": "ৰঙালী বিহু ২০২৬, ডিএফডব্লিউ",
-  "eventName2": "Rongali Bihu 2026, DFW"
+  "manualCurrentSequenceId": 0,
+  "autoAdvanceStartedAt": 1775865736176
 }

@@ -121,8 +121,26 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  /* ── Directory image listing: GET /some/folder/?list=1 ────────────────── */
+  if (req.method === 'GET' && req.url.includes('?list=1')) {
+    const folderPath = path.join(DIR, decodeURIComponent(pathname.slice(1)));
+    if (!folderPath.startsWith(DIR + path.sep)) {
+      res.writeHead(403, cors); res.end('Forbidden'); return;
+    }
+    const IMAGE_EXTS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg']);
+    fs.readdir(folderPath, function (err, entries) {
+      if (err) { res.writeHead(404, cors); res.end('[]'); return; }
+      const images = entries.filter(function (f) {
+        return IMAGE_EXTS.has(path.extname(f).toLowerCase());
+      }).sort();
+      res.writeHead(200, { ...cors, 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(images));
+    });
+    return;
+  }
+
   /* ── Static file serving with range-request support ───────────────────── */
-  let filePath = path.join(DIR, pathname === '/' ? 'index.html' : pathname.slice(1));
+  let filePath = path.join(DIR, pathname === '/' ? 'index.html' : decodeURIComponent(pathname.slice(1)));
 
   // Security: block path traversal
   if (!filePath.startsWith(DIR + path.sep) && filePath !== path.join(DIR, 'index.html')) {
