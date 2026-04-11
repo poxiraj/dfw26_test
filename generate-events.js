@@ -9,7 +9,7 @@
  *
  * The Excel sheet must have these column headers (matching events.json fields):
  *   sequenceId | description1 | description2 | durationMinutes |
- *   expectedStartTime | prepTime | perfomers_speakers | Coordinator
+ *   expectedStartTime | prepTime | performers_speakers | Coordinator
  */
 
 'use strict';
@@ -18,7 +18,7 @@ const XLSX = require('xlsx');
 const fs   = require('fs');
 const path = require('path');
 
-const XLSX_FILE = path.join(__dirname, 'Lineup 2026.xlsx');
+const XLSX_FILE = path.join(__dirname, 'Lineup2026.xlsx');
 const JSON_FILE = path.join(__dirname, 'events.json');
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -77,8 +77,8 @@ const items = rows
     durationMinutes:   xlNum(row['durationMinutes']),
     expectedStartTime: xlTimeToStr(row['expectedStartTime']),
     prepTime:          xlNum(row['prepTime']),
-    'Presenter(s)':    xlStr(row['perfomers_speakers']),
-    coordinator:       xlStr(row['Coordinator']),
+    'Presenter(s)':    xlStr(row['performers_speakers']),
+    coordinator:       xlStr(row['Coordinator'] ?? row['coordinator']),
   }))
   .filter(item =>
     // Drop blank rows (nothing useful in them)

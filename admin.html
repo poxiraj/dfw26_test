@@ -498,9 +498,9 @@
       <button type="button" class="btn-secondary" id="btn-clear-manual-current" hidden style="margin-top:0.65rem">Clear programme focus (use schedule time)</button>
       <p style="margin-top:0.5rem;font-size:0.8rem;opacity:0.9">Use after editing the file on disk. Requires serving the folder over HTTP (e.g. <code>npm start</code>).</p>
       <hr style="margin:1rem 0;border:none;border-top:1px solid var(--border-gold);" />
-      <button type="button" class="btn-secondary" id="btn-regen-excel">Regenerate from Lineup 2026.xlsx</button>
+      <button type="button" class="btn-secondary" id="btn-regen-excel">Regenerate from Lineup2026.xlsx</button>
       <p style="margin-top:0.4rem;font-size:0.8rem;opacity:0.9">
-        Reads <code>Lineup 2026.xlsx</code> from the same folder, converts it to
+        Reads <code>Lineup2026.xlsx</code> from the same folder, converts it to
         <code>events.json</code>, loads it into the programme, and downloads the
         updated file for you to commit.
       </p>
@@ -910,7 +910,7 @@
       btnReloadBundled.disabled = false;
     });
 
-    /* ── Regenerate events.json from Lineup 2026.xlsx ───────────────────── */
+    /* ── Regenerate events.json from Lineup2026.xlsx ────────────────────── */
     (function initRegenExcel() {
       var btn = document.getElementById('btn-regen-excel');
       if (!btn) return;
@@ -953,8 +953,8 @@
         btn.disabled = true;
         btn.textContent = 'Loading…';
         try {
-          var res = await fetch('Lineup%202026.xlsx', { cache: 'no-store' });
-          if (!res.ok) throw new Error('HTTP ' + res.status + ' — make sure Lineup 2026.xlsx is in the same folder and the site is served over HTTP.');
+          var res = await fetch('Lineup2026.xlsx', { cache: 'no-store' });
+          if (!res.ok) throw new Error('HTTP ' + res.status + ' — make sure Lineup2026.xlsx is in the same folder and the site is served over HTTP.');
           var buffer = await res.arrayBuffer();
           var wb = XLSX.read(new Uint8Array(buffer), { type: 'array', cellDates: false });
           var ws = wb.Sheets[wb.SheetNames[0]];
@@ -968,8 +968,8 @@
               durationMinutes:  xlNum(row['durationMinutes']),
               expectedStartTime: xlTimeToStr(row['expectedStartTime']),
               prepTime:         xlNum(row['prepTime']),
-              'Presenter(s)':   xlStr(row['Presenter(s)']),
-              coordinator:      xlStr(row['coordinator']),
+              'Presenter(s)':   xlStr(row['performers_speakers']),
+              coordinator:      xlStr(row['Coordinator'] || row['coordinator']),
             };
           }).filter(function (item) {
             // Drop completely empty rows (no sequenceId and no descriptions)
@@ -1010,7 +1010,7 @@
           alert('Could not regenerate from Excel:\n' + e.message);
         }
         btn.disabled = false;
-        btn.textContent = 'Regenerate from Lineup 2026.xlsx';
+        btn.textContent = 'Regenerate from Lineup2026.xlsx';
       });
     })();
     /* ─────────────────────────────────────────────────────────────────────── */

@@ -365,6 +365,29 @@
       line-height: 1.3;
     }
 
+    /* ── Bulletin image panel (decor / arts) ────────────────────────────── */
+    .bulletin-img-wrap {
+      background: #1a1008;
+      max-height: 50vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .bulletin-img-wrap img {
+      display: block;
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+    }
+    .bulletin-disclaimer {
+      padding: 0.55rem 1.1rem;
+      font-size: 0.8rem;
+      font-style: italic;
+      color: var(--text-blue-soft);
+      background: linear-gradient(135deg, #fffef9 0%, var(--parchment) 100%);
+      border-top: 1px solid var(--border-gold);
+      text-align: center;
+    }
+
     /* ── Footer link ─────────────────────────────────────────────────────── */
     .back-row {
       text-align: center;
@@ -447,8 +470,11 @@
         </button>
         <div class="accordion-panel" id="panel-menu" role="region" aria-labelledby="section-menu">
           <div class="accordion-panel-inner">
-            <div class="accordion-panel-content no-pad" id="menu-panel-content">
-              <!-- images are injected here by the script below -->
+            <div class="accordion-panel-content no-pad">
+              <div class="bulletin-img-wrap">
+                <img src="bulletin/menu/meal_menu.png" alt="Dinner — representative image" loading="lazy" />
+              </div>
+              <p class="bulletin-disclaimer">✦ This is just a representative image of our elaborate gourmet dinner, snacks and drinks. The actual list of menu items will be shown here by April 14.</p>
             </div>
           </div>
         </div>
@@ -487,6 +513,7 @@
                   <span class="schedule-time">4:03 PM</span>
                   <div class="schedule-desc">
                     <span class="schedule-english">Programs Begin</span>
+                    <span class="schedule-english" style="font-style:normal;color:var(--burgundy);font-size:0.78rem;">✦ Detail items in the program will be published by Wednesday.</span>
                   </div>
                 </li>
                 <li class="schedule-row is-break">
@@ -500,6 +527,7 @@
                   <span class="schedule-time">6:26 PM</span>
                   <div class="schedule-desc">
                     <span class="schedule-english">Programs Resume</span>
+                    <span class="schedule-english" style="font-style:normal;color:var(--burgundy);font-size:0.78rem;">✦ Detail items in the program will be published by Wednesday.</span>
                   </div>
                 </li>
                 <li class="schedule-row">
@@ -529,6 +557,54 @@
         </div>
       </div>
 
+      <!-- 4 · Decor -->
+      <div class="accordion-item" id="section-decor">
+        <button class="accordion-trigger"
+                type="button"
+                aria-expanded="false"
+                aria-controls="panel-decor">
+          <span class="trigger-icon" aria-hidden="true">🌸</span>
+          <span class="trigger-label">Decor</span>
+          <span class="trigger-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="accordion-panel" id="panel-decor" role="region" aria-labelledby="section-decor">
+          <div class="accordion-panel-inner">
+            <div class="accordion-panel-content no-pad">
+              <div class="bulletin-img-wrap">
+                <img src="bulletin/decor/photo_booth.jpeg"
+                     alt="Decor — Photo Booth"
+                     loading="lazy" />
+              </div>
+              <p class="bulletin-disclaimer">✦ This is a representative image. The real image will be updated when ready.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 · Arts -->
+      <div class="accordion-item" id="section-arts">
+        <button class="accordion-trigger"
+                type="button"
+                aria-expanded="false"
+                aria-controls="panel-arts">
+          <span class="trigger-icon" aria-hidden="true">🎨</span>
+          <span class="trigger-label">Arts</span>
+          <span class="trigger-chevron" aria-hidden="true"></span>
+        </button>
+        <div class="accordion-panel" id="panel-arts" role="region" aria-labelledby="section-arts">
+          <div class="accordion-panel-inner">
+            <div class="accordion-panel-content no-pad">
+              <div class="bulletin-img-wrap">
+                <img src="bulletin/arts/arts_comp.png"
+                     alt="Arts — Competition"
+                     loading="lazy" />
+              </div>
+              <p class="bulletin-disclaimer">✦ This is a representative image. The real image will be updated when ready.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div><!-- /accordion -->
 
     <!-- back link disabled -->
@@ -537,37 +613,6 @@
   </div>
 
   <script>
-    /* ── Menu image gallery ──────────────────────────────────────────────── */
-    (function () {
-      var MENU_FOLDER  = 'bulletin/menu/';
-      // Fallback list for GitHub Pages (static host with no directory listing).
-      // Add filenames here whenever a new image is placed in the folder.
-      var STATIC_FILES = ['menu.jpeg'];
-
-      var panel = document.getElementById('menu-panel-content');
-      if (!panel) return;
-
-      function renderImages(filenames) {
-        if (!filenames || filenames.length === 0) {
-          panel.innerHTML = '<p class="panel-placeholder" style="padding:1.5rem 1.4rem">No menu images found in bulletin/menu/.</p>';
-          return;
-        }
-        panel.innerHTML = filenames.map(function (name) {
-          return '<div class="menu-gallery"><img src="' + MENU_FOLDER + encodeURIComponent(name) +
-                 '" alt="Menu — ' + name + '" loading="lazy" /></div>';
-        }).join('');
-      }
-
-      // Try server-provided listing first (works with local server.js)
-      fetch('bulletin/menu/?list=1', { cache: 'no-store' })
-        .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
-        .then(function (files) { renderImages(files); })
-        .catch(function () {
-          // Fall back to the hardcoded list (GitHub Pages / static hosting)
-          renderImages(STATIC_FILES);
-        });
-    })();
-
     /* ── Iframe load-error detection ─────────────────────────────────────── */
     (function () {
       var iframe   = document.getElementById('venue-iframe');
