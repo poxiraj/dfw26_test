@@ -586,15 +586,33 @@
       // is always accessible by keeping it in the DOM (hidden by default).
     })();
 
+    /* ── Background music ────────────────────────────────────────────────── */
+    var _bgAudio = (function () {
+      var audio = new Audio('bulletin/music/backmusic.mp3');
+      audio.loop = true;
+      audio.volume = 0.55;
+      return audio;
+    })();
+
+    function _playBgMusic() {
+      if (_bgAudio.paused) {
+        _bgAudio.play().catch(function () {
+          // Browser blocked autoplay — will retry on next user gesture
+        });
+      }
+    }
+
     (function () {
       var items = document.querySelectorAll('.accordion-item');
 
       items.forEach(function (item) {
         var trigger = item.querySelector('.accordion-trigger');
-        var panel   = item.querySelector('.accordion-panel');
 
         trigger.addEventListener('click', function () {
           var isOpen = item.classList.contains('is-open');
+
+          // Play background music on first interaction (no restart if already playing)
+          _playBgMusic();
 
           // Close all others
           items.forEach(function (other) {
