@@ -17,3 +17,4 @@ const FIREBASE_CONFIG   = {
 };
 
 https://dfw-bihu-2026-default-rtdb.firebaseio.com/
+https://console.firebase.google.com/u/0/project/dfw-bihu-2026/overview

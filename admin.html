@@ -497,6 +497,13 @@
       <button type="button" class="btn-secondary" id="btn-reload-bundled">Reload from server copy (events.json)</button>
       <button type="button" class="btn-secondary" id="btn-clear-manual-current" hidden style="margin-top:0.65rem">Clear programme focus (use schedule time)</button>
       <p style="margin-top:0.5rem;font-size:0.8rem;opacity:0.9">Use after editing the file on disk. Requires serving the folder over HTTP (e.g. <code>npm start</code>).</p>
+      <hr style="margin:1rem 0;border:none;border-top:1px solid var(--border-gold);" />
+      <button type="button" class="btn-secondary" id="btn-regen-excel">Regenerate from Lineup 2026.xlsx</button>
+      <p style="margin-top:0.4rem;font-size:0.8rem;opacity:0.9">
+        Reads <code>Lineup 2026.xlsx</code> from the same folder, converts it to
+        <code>events.json</code>, loads it into the programme, and downloads the
+        updated file for you to commit.
+      </p>
     </section>
 
     <!-- ── Live Controls ─────────────────────────────────────────────────── -->
@@ -903,6 +910,111 @@
       btnReloadBundled.disabled = false;
     });
 
+    /* ── Regenerate events.json from Lineup 2026.xlsx ───────────────────── */
+    (function initRegenExcel() {
+      var btn = document.getElementById('btn-regen-excel');
+      if (!btn) return;
+
+      // Convert an Excel time serial (fraction of a day) or string to "HH:MM" / "HH:MM:SS"
+      function xlTimeToStr(val) {
+        if (val == null || val === '') return null;
+        if (typeof val === 'string') return val.trim() || null;
+        if (typeof val === 'number' && val >= 0 && val < 1) {
+          var totalSec = Math.round(val * 86400);
+          var h = Math.floor(totalSec / 3600);
+          var m = Math.floor((totalSec % 3600) / 60);
+          var s = totalSec % 60;
+          var hh = (h < 10 ? '0' : '') + h;
+          var mm = (m < 10 ? '0' : '') + m;
+          return s > 0 ? hh + ':' + mm + ':' + (s < 10 ? '0' : '') + s : hh + ':' + mm;
+        }
+        return String(val);
+      }
+
+      // Coerce a cell value to a number or null
+      function xlNum(val) {
+        if (val == null || val === '') return null;
+        var n = Number(val);
+        return isNaN(n) ? null : n;
+      }
+
+      // Coerce a cell value to a trimmed string or null
+      function xlStr(val) {
+        if (val == null || val === '') return null;
+        var s = String(val).trim();
+        return s === '' ? null : s;
+      }
+
+      btn.addEventListener('click', async function () {
+        if (typeof XLSX === 'undefined') {
+          alert('SheetJS library has not loaded yet. Please wait a moment and try again.');
+          return;
+        }
+        btn.disabled = true;
+        btn.textContent = 'Loading…';
+        try {
+          var res = await fetch('Lineup%202026.xlsx', { cache: 'no-store' });
+          if (!res.ok) throw new Error('HTTP ' + res.status + ' — make sure Lineup 2026.xlsx is in the same folder and the site is served over HTTP.');
+          var buffer = await res.arrayBuffer();
+          var wb = XLSX.read(new Uint8Array(buffer), { type: 'array', cellDates: false });
+          var ws = wb.Sheets[wb.SheetNames[0]];
+          var rows = XLSX.utils.sheet_to_json(ws, { defval: null });
+
+          var items = rows.map(function (row) {
+            return {
+              sequenceId:       xlNum(row['sequenceId']),
+              description1:     xlStr(row['description1']),
+              description2:     xlStr(row['description2']),
+              durationMinutes:  xlNum(row['durationMinutes']),
+              expectedStartTime: xlTimeToStr(row['expectedStartTime']),
+              prepTime:         xlNum(row['prepTime']),
+              'Presenter(s)':   xlStr(row['Presenter(s)']),
+              coordinator:      xlStr(row['coordinator']),
+            };
+          }).filter(function (item) {
+            // Drop completely empty rows (no sequenceId and no descriptions)
+            return item.sequenceId !== null || item.description1 !== null || item.description2 !== null;
+          });
+
+          if (items.length === 0) throw new Error('No data rows found. Check that the first sheet has the correct column headers.');
+
+          var data = { items: items };
+
+          // Preserve any active manual focus if the sequenceId still exists
+          var prior = getData();
+          if (prior && hasManualAgendaHighlight(prior)) {
+            var k = String(prior.manualCurrentSequenceId);
+            if (items.some(function (it) { return String(it.sequenceId) === k; })) {
+              data.manualCurrentSequenceId = prior.manualCurrentSequenceId;
+              if (prior.autoAdvanceStartedAt) data.autoAdvanceStartedAt = prior.autoAdvanceStartedAt;
+            }
+          }
+
+          saveToStorage(data);
+          renderAdminList(data);
+
+          // Offer the generated events.json as a download
+          var json = JSON.stringify(data, null, 2);
+          var blob = new Blob([json], { type: 'application/json' });
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement('a');
+          a.href = url;
+          a.download = 'events.json';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+
+          showToast();
+        } catch (e) {
+          alert('Could not regenerate from Excel:\n' + e.message);
+        }
+        btn.disabled = false;
+        btn.textContent = 'Regenerate from Lineup 2026.xlsx';
+      });
+    })();
+    /* ─────────────────────────────────────────────────────────────────────── */
+
     // Show existing data on load; else try bundled file (no file poll here — would overwrite admin edits)
     (async function boot() {
       const existing = getData();
@@ -923,6 +1035,9 @@
       updateClearManualBtn();
     })();
   </script>
+
+  <!-- SheetJS — client-side Excel parsing (works on GitHub Pages) -->
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
 
   <!-- Firebase Realtime Database — cross-device sync (works on GitHub Pages) -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
