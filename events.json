@@ -17,7 +17,7 @@
       "durationMinutes": 3,
       "expectedStartTime": "16:00",
       "prepTime": 0,
-      "Presenter(s)": "Jonali",
+      "Presenter(s)": "TBD (Jonali as backup)",
       "coordinator": null
     },
     {
@@ -72,7 +72,7 @@
     },
     {
       "sequenceId": 7,
-      "description1": "কিশোৰ সকলৰ নৃত্য",
+      "description1": "চেকচেকী পৰুৱা",
       "description2": "Kids dance (6-9 age group)",
       "durationMinutes": 5,
       "expectedStartTime": "16:40:30",
@@ -232,7 +232,7 @@
     },
     {
       "sequenceId": 23,
-      "description1": "অসমীয়া আধুনিক নৃত্য",
+      "description1": "সোনমইনা বাখৰ ঐ",
       "description2": "Assamese Modern dance",
       "durationMinutes": 5,
       "expectedStartTime": "19:00:30",
@@ -252,7 +252,7 @@
     },
     {
       "sequenceId": 25,
-      "description1": "লোক নৃত্য",
+      "description1": "লোকনৃত্য - ঝুমুৰৰ ৰুণঝুন",
       "description2": "Folk dance",
       "durationMinutes": 5,
       "expectedStartTime": "19:24:30",
@@ -416,16 +416,6 @@
       "description2": "Closing",
       "durationMinutes": null,
       "expectedStartTime": "23:15",
-      "prepTime": null,
-      "Presenter(s)": null,
-      "coordinator": null
-    },
-    {
-      "sequenceId": null,
-      "description1": null,
-      "description2": "Total time in muntes",
-      "durationMinutes": null,
-      "expectedStartTime": null,
       "prepTime": null,
       "Presenter(s)": null,
       "coordinator": null

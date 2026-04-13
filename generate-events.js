@@ -81,8 +81,8 @@ const items = rows
     coordinator:       xlStr(row['Coordinator'] ?? row['coordinator']),
   }))
   .filter(item =>
-    // Drop blank rows (nothing useful in them)
-    item.sequenceId !== null || item.description1 !== null || item.description2 !== null
+    // Must have a sequenceId to be a valid programme item
+    item.sequenceId !== null
   );
 
 if (items.length === 0) {
